@@ -59,7 +59,7 @@ export default function CaretakerLogin() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="caretaker@campus.in"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm transition-all text-black placeholder-slate-400"
               required
             />
           </div>
@@ -71,7 +71,7 @@ export default function CaretakerLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm transition-all text-black placeholder-slate-400"
               required
             />
           </div>

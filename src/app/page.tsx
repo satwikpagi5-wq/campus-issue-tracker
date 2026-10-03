@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Home as HomeIcon, Clock, Wrench, CheckCircle2, Search, Bell,
-  ChevronDown, Plus, AlertTriangle, Lightbulb, User, MapPin,
-  ChevronRight, Image as ImageIcon, Star, Building2, HeartHandshake, ShieldCheck
+  ChevronDown, Plus, Building2, HeartHandshake, ShieldCheck, MapPin
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -36,6 +36,8 @@ interface SupabaseIssueRow {
 }
 
 export default function CampusCareDashboard() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [issues, setIssues] = useState<Issue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +52,14 @@ export default function CampusCareDashboard() {
         setIsLoading(false);
         return;
       }
+
+      // --- AUTH CHECK ---
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/login");
+        return;
+      }
+      setUser(session.user);
       
       // 1. Fetch Issues
       const { data: issueData, error: issueError } = await supabase
@@ -65,7 +75,9 @@ export default function CampusCareDashboard() {
           title: item.title || (item.description ? item.description.slice(0, 32) + "..." : "Untitled Issue"),
           description: item.description || "No description provided.",
           category: item.category || "General",
-          status: item.status === "Solved" ? "Completed" : item.status === "In Progress" ? "Working" : "Pending",
+          status: (item.status === "Completed" || item.status === "Solved") ? "Completed" : 
+                  (item.status === "Working" || item.status === "In Progress") ? "Working" : 
+                  "Pending",
           upvotes: item.upvotes || 1,
           location: item.location || "Campus Area",
           submittedBy: "Student",
@@ -75,7 +87,7 @@ export default function CampusCareDashboard() {
         setIssues(mapped);
       }
 
-      // 2. Fetch Notifications for the "Student" user
+      // 2. Fetch Notifications
       const { data: notifData, error: notifError } = await supabase
         .from("notifications")
         .select("*")
@@ -90,7 +102,7 @@ export default function CampusCareDashboard() {
       setIsLoading(false);
     }
     loadData();
-  }, []);
+  }, [router]);
 
   const filteredIssues = issues.filter((issue) => {
     const searchLower = searchQuery.toLowerCase();
@@ -137,7 +149,7 @@ export default function CampusCareDashboard() {
             href="/login"
             className="flex items-center justify-center gap-2 w-full py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 rounded-xl text-sm font-semibold transition-colors"
           >
-            <ShieldCheck size={18} /> Caretaker Login
+            <ShieldCheck size={18} /> Caretaker Portal
           </Link>
           
           <div className="rounded-2xl p-4 bg-white/5 border border-white/10 text-center flex flex-col items-center gap-2">
@@ -157,13 +169,13 @@ export default function CampusCareDashboard() {
               placeholder="Search issues or locations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-[#F3F6FA] border-none rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full pl-10 pr-4 py-2 bg-[#F3F6FA] border-none rounded-xl text-sm text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
           <div className="flex items-center gap-4">
             
-            {/* INTERACTIVE BELL NOTIFICATION START */}
+            {/* INTERACTIVE BELL NOTIFICATION */}
             <div className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
@@ -175,7 +187,6 @@ export default function CampusCareDashboard() {
                 )}
               </button>
 
-              {/* Dropdown Menu */}
               {showNotifications && (
                 <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-100 z-50 overflow-hidden">
                   <div className="p-3 border-b border-slate-100 bg-slate-50 font-bold text-sm text-slate-800">
@@ -196,14 +207,24 @@ export default function CampusCareDashboard() {
                 </div>
               )}
             </div>
-            {/* INTERACTIVE BELL NOTIFICATION END */}
 
-            <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200 cursor-pointer">
+            {/* DYNAMIC USER PROFILE & LOGOUT */}
+            <div 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                router.push("/login");
+              }}
+              className="flex items-center gap-2.5 pl-2 border-l border-slate-200 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors"
+            >
               <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-xs tracking-wider shadow-sm">
-                SP
+                {user?.email ? user.email.substring(0, 2).toUpperCase() : "U"}
               </div>
-              <span className="text-sm font-semibold text-slate-800 hidden sm:inline">Satwik Pagi</span>
-              <ChevronDown size={16} className="text-slate-400" />
+              <div className="hidden sm:flex flex-col">
+                <span className="text-sm font-semibold text-slate-800 leading-tight">
+                  {user?.email ? user.email.split('@')[0] : "Student"}
+                </span>
+                <span className="text-[10px] text-slate-400 leading-tight">Click to logout</span>
+              </div>
             </div>
           </div>
         </header>
@@ -256,8 +277,8 @@ export default function CampusCareDashboard() {
                   </div>
                   <div className="flex items-center shrink-0">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-                      issue.status === 'Completed' || issue.status === 'Solved' ? 'bg-green-100 text-green-700' : 
-                      issue.status === 'Working' || issue.status === 'In Progress' ? 'bg-blue-100 text-blue-700' : 
+                      issue.status === 'Completed' ? 'bg-green-100 text-green-700' : 
+                      issue.status === 'Working' ? 'bg-blue-100 text-blue-700' : 
                       'bg-yellow-100 text-yellow-700'
                     }`}>
                       {issue.status}

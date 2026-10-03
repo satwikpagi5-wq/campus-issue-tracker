@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, MapPin, Send, Loader2, User, Camera, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, MapPin, Send, Loader2, User, Camera } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function ReportIssue() {
@@ -61,7 +61,6 @@ export default function ReportIssue() {
         const fileExt = issueImage.name.split('.').pop();
         const fileName = `report-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         
-        // Reusing the 'resolutions' bucket you already configured to save time
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("resolutions")
           .upload(fileName, issueImage);
@@ -83,7 +82,7 @@ export default function ReportIssue() {
         description: description,
         category: category,
         location: finalLocation,
-        image_url: imageUrl, // Saves the uploaded image URL
+        image_url: imageUrl,
         status: "Pending",
         upvotes: 1,
         submitted_by: submittedBy,
@@ -121,7 +120,7 @@ export default function ReportIssue() {
             <User size={16} /> Submit As
           </label>
           <select 
-            className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none text-black"
             value={submittedBy}
             onChange={(e) => setSubmittedBy(e.target.value)}
             disabled={isSubmitting}
@@ -135,7 +134,7 @@ export default function ReportIssue() {
           <label className="text-sm font-semibold text-slate-700">Issue Title</label>
           <input 
             type="text"
-            className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none" 
+            className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none text-black placeholder-slate-400" 
             placeholder="e.g., Broken Projector"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -147,7 +146,7 @@ export default function ReportIssue() {
         <div className="flex flex-col gap-2">
           <label className="text-sm font-semibold text-slate-700">Category</label>
           <select 
-            className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none text-black"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             disabled={isSubmitting}
@@ -163,7 +162,7 @@ export default function ReportIssue() {
         <div className="flex flex-col gap-2">
           <label className="text-sm font-semibold text-slate-700">What is the problem?</label>
           <textarea 
-            className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none min-h-[100px]" 
+            className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none min-h-[100px] text-black placeholder-slate-400" 
             placeholder="Describe the issue in detail..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -183,7 +182,7 @@ export default function ReportIssue() {
               accept="image/*"
               onChange={(e) => setIssueImage(e.target.files ? e.target.files[0] : null)}
               disabled={isSubmitting}
-              className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+              className="w-full p-3 border border-slate-200 rounded-xl bg-white shadow-sm text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
             />
           </div>
         </div>
@@ -201,7 +200,7 @@ export default function ReportIssue() {
                 value={roomNo}
                 onChange={(e) => setRoomNo(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full p-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                className="w-full p-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm text-black placeholder-slate-400"
               />
             </div>
             <div className="flex-1 flex flex-col gap-1.5">
@@ -212,7 +211,7 @@ export default function ReportIssue() {
                 value={floorNo}
                 onChange={(e) => setFloorNo(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full p-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                className="w-full p-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm text-black placeholder-slate-400"
               />
             </div>
           </div>
@@ -222,7 +221,7 @@ export default function ReportIssue() {
             <div className="flex gap-2">
               <input 
                 type="text"
-                className="w-full p-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm" 
+                className="w-full p-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm text-black placeholder-slate-400" 
                 placeholder="e.g., Near the main gate"
                 value={locationText}
                 onChange={(e) => setLocationText(e.target.value)}
